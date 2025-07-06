@@ -1,0 +1,15 @@
+    <ul class="menu-sub">
+    @foreach ($side_searches as $search)
+        <li>
+            <a href="{{route('company.savedsearch',$search['slug'])}}" class="submenu-innner">
+                <span class="submenu-innner-lft">{{$search['name']}}</span>
+                <span class="submenu-innner-rght">
+                    <span class="notificate_number">{{$search['match_count']}}</span>
+                    @if($search['new_match_count'] > 0)
+                    <span class="notificate_total">{{$search['new_match_count']}} NEW</span>
+                    @endif
+                </span>
+            </a>
+        </li>
+    @endforeach
+    </ul>

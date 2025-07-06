@@ -1,0 +1,247 @@
+<?php
+
+namespace App\Http\Livewire;
+
+use App\Models\Note;
+use App\Models\Favorite;
+use App\Models\Search;
+use App\Models\User;
+use App\Models\Company;
+use Illuminate\Support\Facades\Auth;
+use Livewire\Component;
+
+class SavedSearch extends Component
+{
+    public $slug;
+
+    public User $candidateProfile;
+
+    public $count = 39;
+
+    public $search_name;
+    public $candidates_count;
+
+    //search entities
+    public
+    $all_industries,
+    $selectedIndustries,
+    $all_interests,
+    $selectedInterests,
+
+    //skills
+    $all_languages,
+    $selectedLanguages,
+    $all_soft_skills,
+    $selectedSoftSkills,
+    $all_hard_skills,
+    $selectedHardSkills,
+    $hard_skills,
+    $hard_skills_status,
+    $soft_skills,
+    $soft_skills_status;
+
+    //note section
+    public $notes;
+    public $note;
+
+    //filter section goes
+    public $category = 'suggested';
+
+    // saved search
+    public $login_user = '';
+    public $company = '';
+    public $saved_searches = [];
+    public $view_id = '';
+    public $past_search_match_users = [];
+
+    public $my_favorites = [];
+
+    protected $listeners = ['viewProfile' , 'updateFavorites' => '$refresh'];
+
+    public function mount()
+    { 
+        $this->login_user = Auth::user()->id;
+        $this->company = Company::where('user_id', $this->login_user)->pluck('id')->first();
+    }
+    
+    public function render()
+    {
+        // get saved searched of company
+        $this->saved_searches = Search::where('company_id', $this->company)->get();
+        foreach($this->saved_searches as $k => $search_) {
+            $search_candidate = $search_->users->toArray();
+            $this->saved_searches[$k]['candidate_ids'] = array_column($search_candidate, 'id');
+        }
+
+        //get saved search
+        $search = Search::where('slug', $this->slug)->first();
+        $search_fields = json_decode($search->search_fields,true);
+        // $past_search_match_users = $search->users->pluck('id')->toArray();
+        $past_search_match_users = json_decode($search->synced_users, true);
+
+        $this->past_search_match_users = $past_search_match_users;
+
+        //assign respective search values from search_fields array
+        $this->selectedInterests = $search_fields['selectedInterests'];
+        $this->selectedIndustries = $search_fields['selectedIndustries'];
+        $this->selectedLanguages = $search_fields['selectedLanguages'];
+
+        $candidates = User::select('*', \DB::raw('IF(users.id not in ('.implode(',', $past_search_match_users).'), 1, 0) as order_row'))->with(['industries','interests','educations','employments','softSkills','hardSkills','languages','references','personal','companies'])
+        ->where('user_type','candidate')
+        ->when($this->selectedInterests, function($query) {
+            return $query->whereHas('interests', function($query) {
+                return $query->where('interest_id', $this->selectedInterests);
+            });
+        })
+        ->when($this->selectedIndustries, function($query) {
+            return $query->whereHas('industries', function($query) {
+                return $query->where('industry_id', $this->selectedIndustries);
+            });
+        })
+        ->when($this->selectedLanguages, function($query) {
+            return $query->whereHas('languages', function($query) {
+                return $query->where('language_id', $this->selectedLanguages);
+            });
+        });
+
+        $this->my_favorites = Favorite::where('company_id',Auth::user()->company->id)->pluck('candidate_id')->toArray();
+
+        $candidates->orderBy('order_row','desc');
+
+        $this->candidates_count = $candidates->count();
+
+        // get new count after de-select from + sign for manual add/remove
+        $search_count = \DB::table('search_user')->where(['search_id' => $search->id])->count();
+        $search->match_count = $search_count;
+        
+        $search->new_match_count = $this->candidates_count - $search->old_match_count;
+
+        if($this->category == 'favorites'){
+            $final_candidates = $candidates->whereIn('id', $this->my_favorites)->get();
+        }
+        elseif($this->category == 'requested'){
+            $final_candidates = $candidates->whereHas('companies',function($q){
+                return $q->where('company_id',Auth::user()->company->id)
+                         ->where('status',0);
+            })->get();
+        }
+        elseif($this->category == 'unmasked'){
+            $final_candidates = $candidates->whereHas('companies',function($q){
+                return $q->where('company_id',Auth::user()->company->id)
+                         ->where('status',1);
+            })->get();
+        } elseif($this->category == 'new') {
+            $final_candidates = $candidates->whereNotIn('id', $past_search_match_users)->get();
+        }
+        else{
+            $final_candidates = $candidates->take($this->count)
+            ->get();
+        }
+
+
+        $favorites_count =  $candidates->whereIn('id', $this->my_favorites)->count();
+
+        $requested_count = $candidates->whereHas('companies',function($q){
+            return $q->where('company_id',Auth::user()->company->id)
+                     ->where('status',0);
+        })->count();
+
+        $unmasked_count = $candidates->whereHas('companies',function($q){
+            return $q->where('company_id',Auth::user()->company->id)
+                     ->where('status',1);
+        })->count();
+
+        return view('livewire.saved-search',compact('final_candidates','search','favorites_count','requested_count','unmasked_count','past_search_match_users'));
+    }
+
+    public function saveFavorite($user_id)
+    {
+        $this->dispatchBrowserEvent('close-profile-modal');
+
+        $favorite = Favorite::create([
+            'company_id' => Auth::user()->company->id,
+            'candidate_id' => $user_id
+        ]);
+        return response()->json();
+    }
+
+    public function removeFavorite($user_id)
+    {   
+        $this->dispatchBrowserEvent('close-profile-modal');
+
+        $favorite = Favorite::where(['company_id' => Auth::user()->company->id, 'candidate_id' => $user_id])->first();
+        if($favorite) {
+            $favorite->delete();
+        }
+        
+        $this->my_favorites = Favorite::where('company_id',Auth::user()->company->id)->pluck('candidate_id')->toArray();
+        $this->emit(event: 'updateFavorites');
+        return response()->json();
+    }
+
+    public function viewProfile($user_id){
+        $this->view_id = $user_id;
+        // get saved serached of company
+        $this->saved_searches = Search::where('company_id', $this->company)->get();
+        foreach($this->saved_searches as $k => $search_) {
+            $search_candidate = $search_->users->toArray();
+            $this->saved_searches[$k]['candidate_ids'] = array_column($search_candidate, 'id');
+        }
+        
+        $this->candidateProfile = User::where('id',$user_id)
+        ->with(['industries','interests','educations','employments','softSkills','hardSkills','languages','references','personal'])
+        ->where('user_type','candidate')->first();
+
+        $this->dispatchBrowserEvent('open-profile-modal');
+        $this->dispatchBrowserEvent('show-profile-modal');
+    }
+
+    public function saveNote(){
+        Note::create([
+            'user_id' => $this->candidateProfile->id,
+            'company_id' => Auth::user()->company->id,
+            'created_by' => Auth::user()->id,
+            'note' => $this->note
+        ]);
+        $this->dispatchBrowserEvent('close-notes');
+        $this->notes = Note::where('user_id', $this->candidateProfile->id)->latest()->get();
+        $this->note = '';
+    }
+
+    public function filterByCategory($category){
+       $this->category = $category;
+    }
+
+    public function filterNew()
+    {
+        $this->category = 'new';
+    }
+
+    public function changeEvent($is_checked, $search_id, $candidate_id)
+    {
+        $search_user = \DB::table('search_user')->where(['search_id' => $search_id, 'user_id' => $candidate_id])->first();
+        $search = Search::find($search_id);
+        // if already in saved search user
+        if(!empty($search_user) && $is_checked==1) {
+            \DB::table('search_user')->where('id', $search_user->id)->delete();
+        } elseif (empty($search_user) && $is_checked==0) {
+            \DB::table('search_user')->insert([
+                'search_id' => $search_id,
+                'user_id' => $candidate_id
+            ]);
+
+            $old_match = $search->old_match_count;
+            $old_users = json_decode($search->synced_users, true);
+            $search->old_match_count = $old_match+1;
+            $old_users[] = $candidate_id;
+            $search->synced_users = json_encode($old_users);
+        }
+
+        $search_count = \DB::table('search_user')->where(['search_id' => $search_id])->count();
+        //var_dump($search_count);
+        // $search->old_match_count = $search_count;
+        if($search->save()) {
+            $this->emit(event: 'updateSeraches');
+        }
+    }
+}

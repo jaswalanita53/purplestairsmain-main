@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Document</title>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+        <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700&display=swap" rel="stylesheet">
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet">
+        <link rel="stylesheet" href="css/style.css">
+    </head>
+    <body>
+        <section class="mob-loan-banner py-5">
+            <div class="container">
+                <div class="points-box justify-content-end d-flex me-3 mb-4 pb-2">
+                    <div class="points d-flex align-items-center py-1 px-2 rounded-pill">
+                        <span class="point-num text-white me-1 fw-semibold">2000</span>
+                        <img src="images/gold-coin-icon.svg" alt="" class="img-fluid">
+                    </div>
+                </div>
+                <div class="loan-title ps-4 pe-3 pb-4">
+                    <h1 class="h2 text-white mb-0 pb-2">Unleash the Power of Points to Crush Your Loan!</h1>
+                </div>
+            </div>
+        </section>
+        <section class="loan-form-wrap position-relative pb-5 bg-white rounded-top-4">
+            <div class="container">
+                <div class="form-head mx-4 text-center position-relative p-4 rounded-3 shadow">
+                    <img src="images/form-banner-bg.svg" class="img-fluid position-absolute start-0 top-0 h-100 w-100" alt="">
+                    <p class="form-head-text mb-1 mt-3">
+                        Supercharge your loan repayment
+                        <br>
+                        with points and save a staggering
+                    </p>
+                    <div class="form-head-coin-box d-flex justify-content-center">
+                        <span class="coin-num fw-semibold display-2">400</span>
+                        <img src="images/form-head-coin.svg" alt="" class="img-fluid">
+                    </div>
+                </div>
+                <div class="form-title-wrap mx-4 d-flex align-items-center justify-content-between pb-4 mb-2">
+                    <img src="images/title-line.svg" alt="" class="img-fluid">
+                    <h4 class="form-title mb-0 text-center fw-semibold">Repay Your Loan</h4>
+                    <img src="images/title-line.svg" alt="" class="img-fluid">
+                </div>
+                <div class="loan-form-box p-4 rounded-3">
+                    <form action="" class="p-2 pb-0">
+                        <div class="loan-form-group mb-4">
+                            <label for="" class="mb-1 fw-semibold">Select Loan ID</label>
+                            <select class="form-select py-2 px-4 border-0 fw-medium">
+                                <option selected>Open this select menu</option>
+                                <option value="1">One</option>
+                                <option value="2">Two</option>
+                                <option value="3">Three</option>
+                            </select>
+                        </div>
+                        <div class="loan-form-group mb-4">
+                            <label for="" class="fw-semibold">Use Your Points</label>
+                            <input
+                                type="number"
+                                class="form-control py-2 ps-4 border-0 fw-medium"
+                                id=""
+                                placeholder=""
+                                value="2000"
+                            >
+                        </div>
+                        <div class="loan-form-group mb-4 position-relative">
+                            <label for="" class="fw-semibold">Cash Value</label>
+                            <span class="position-absolute top-50 start-0 ps-4 fw-medium">$</span>
+                            <input
+                                type="number"
+                                class="form-control py-2 ps-5 border-0 fw-medium"
+                                id=""
+                                placeholder=""
+                                value="20"
+                            >
+                        </div>
+                        <div class="loan-form-group mb-4 position-relative">
+                            <label for="" class="fw-semibold">Remaining Loan Amount</label>
+                            <span class="position-absolute top-50 start-0 ps-4 fw-medium">$</span>
+                            <input
+                                type="number"
+                                class="form-control py-2 ps-5 border-0 fw-medium"
+                                id=""
+                                placeholder=""
+                                value="0"
+                            >
+                        </div>
+                        <div class="">
+                            <label class="fw-semibold">Do you wish to pay the remaining amount now?</label>
+                            <div class="d-flex mt-4">
+                                <div class="form-check me-4">
+                                    <input class="form-check-input" type="radio"  name="amount" id="no"  >
+                                    <label class="form-check-label" for="no">No</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="amount" id="yes" checked >
+                                    <label class="form-check-label" for="yes"> Yes</label>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="mt-4">
+                    <div class="fw-semibold mb-3 mx-4">Saved Payment Options</div>
+                    <div class=" p-4 d-flex justify-content-between align-items-center border rounded-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="amount" id="credit-card" >
+                            <div class="d-flex flex-column">
+                                <label class="" for="credit-card">Credit Card</label>
+                                <p class="mb-0 text-secondary">**** **** **** 3333</p>
+                            </div>
+                        </div>
+                        <div class="fw-semibold">VISA</div>
+                    </div>
+                    <hr class="my-4">
+                </div>
+                <div class="mt-4">
+                    <div class="fw-semibold  mb-3 mx-4">Other Payment Options</div>
+                    <div class="py-3 d-flex border rounded-3 flex-column">
+                        <div class="position-relative px-4">
+                            <i class="fa fa-credit-card position-absolute mt-2 pt-1"></i>
+                            <select class="form-select py-2 px-4 border-0 focus-ring focus-ring-light" aria-label="Default select example">
+                                <option selected>Debit/Credit Card</option>
+                                <option value="1">One</option>
+                                <option value="2">Two</option>
+                                <option value="3">Three</option>
+                            </select>
+                        </div>
+                        <hr class="mx-2">
+                        <div class="position-relative px-4">
+                            <i class="fa fa-bank position-absolute mt-2 pt-1"></i>
+                            <select class="form-select py-2 px-4 border-0 focus-ring focus-ring-light">
+                                <option selected>Bank Transfer</option>
+                                <option value="1">One</option>
+                                <option value="2">Two</option>
+                                <option value="3">Three</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="d-flex justify-content-between align-items-center pt-4 border-top mt-4 ps-4">
+                    <div class="h4 fw-semibold mb-0">$ 80.0</div>
+                    <button class="btn btn-dark px-4"><small class="px-3">Repay Now</small></button>
+                </div>
+            </div>
+        </section>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
+    </body>
+</html>

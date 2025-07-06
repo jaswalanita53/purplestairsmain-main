@@ -1,0 +1,349 @@
+jQuery(document).ready(function($){
+// document start
+
+
+ // Navbar
+ $( "<span class='clickD'></span>" ).insertAfter(".sidebar-nav li.menu-item-has-children > a");
+ $('.sidebar-nav li .clickD').click(function(e) {
+     e.preventDefault();
+     var $this = $(this);
+     if ($this.next().hasClass('show'))
+        {
+            $this.next().removeClass('show');
+            $this.removeClass('toggled');
+        }
+        else
+        {
+            $this.parent().parent().find('.sub-menu').removeClass('show');
+            $this.parent().parent().find('.toggled').removeClass('toggled');
+            $this.next().toggleClass('show');
+            $this.toggleClass('toggled');
+        }
+ });
+
+ $(window).on('resize', function(){
+     if ($(this).width() > 10) {
+         $('html').click(function(){
+             $('.sidebar-nav li .clickD').removeClass('toggled');
+             $('.toggled').removeClass('toggled');
+             $('.sub-menu').removeClass('show');
+         });
+         $(document).click(function(){
+             $('.sidebar-nav li .clickD').removeClass('toggled');
+             $('.toggled').removeClass('toggled');
+             $('.sub-menu').removeClass('show');
+         });
+         $('.sidebar-nav').click(function(e){
+            e.stopPropagation();
+         });
+     }
+ });
+ // Navbar end
+
+
+
+/* ===== For menu animation === */
+$(".navbar-toggler").click(function(){
+    $(".navbar-toggler").toggleClass("open");
+    $(".navbar-toggler .stick").toggleClass("open");
+    $('body,html' ).toggleClass("open-nav");
+});
+
+// Navbar end
+
+
+
+
+
+// fixed nav bar
+$(window).scroll(function() {
+    var scroll = $(window).scrollTop();
+    if (scroll > 100) {
+        $(".c-head").addClass("fixed");
+    }
+    else {
+      $(".c-head").removeClass("fixed");
+    }
+})
+
+
+// smooth scroll to any section
+// if($('a.scroll').length){
+//     $("a.scroll").on('click', function(event) {
+//       if (this.hash !== "") {
+//         event.preventDefault();
+//         var target = this.hash, $target = $(target);
+//         $('html, body').animate({
+//           scrollTop: $target.offset().top - 60
+//         }, 800, function(){
+//           window.location.href.substr(0, window.location.href.indexOf('#'));
+//         });
+//       }
+//     });
+
+//   }
+
+
+// back to top
+if($("#scroll").length){
+    $(window).scroll(function(){
+        if ($(this).scrollTop() > 200) {
+            $('#scroll').fadeIn(200);
+        } else {
+            $('#scroll').fadeOut(200);
+        }
+    });
+    $('#scroll').click(function(){
+        $("html, body").animate({ scrollTop: 0 }, 500);
+        return false;
+    });
+}
+
+
+
+
+// one page scroll menu link
+// $('a[href*="#"]').on('click', function (e) {
+//     e.preventDefault();
+//     $(document).off("scroll");
+//     $('.navbar-nav > li > a').each(function () {
+//         $(this).parent('li').removeClass('current-menu-item');
+//     });
+//     $(this).parent('li').addClass('current-menu-item');
+//     var target = this.hash, $target = $(target);
+//     $('html, body').stop().animate({
+//         'scrollTop': $target.offset().top
+//     }, 500, 'swing', function () {
+//         window.location.href.substr(0, window.location.href.indexOf('#'));
+//         $(document).on("scroll", onScroll);
+//     });
+// });
+//  $(document).on("scroll", onScroll);
+// function onScroll(event){
+//     var scrollPos = $(document).scrollTop() + 100;
+//     $('.navbar-nav > li > a').each(function () {
+//         var currLink = $(this);
+//         var refElement = $(currLink.attr("href"));
+//         if (refElement.position().top <= scrollPos && refElement.position().top + refElement.height() > scrollPos) {
+//             $('.navbar-nav > li').removeClass("current-menu-item");
+//             currLink.parent('li').addClass("current-menu-item");
+//         }
+//         else{
+//             currLink.parent('li').removeClass("current-menu-item");
+//         }
+//     });
+// }
+
+
+
+
+
+
+$('.review_wrap_slider').slick({
+  dots: false,
+  arrows: true,
+  infinite: true,
+  slidesToShow: 1,
+  slidesToScroll: 1,
+  autoplay: false,
+  autoplaySpeed: 3000,
+  centerMode: false,
+  adaptiveHeight: true,
+  centerPadding: '0px',
+  responsive: [
+    {
+      breakpoint: 767,
+      settings: {
+        slidesToShow: 1,
+        slidesToScroll: 1
+      }
+    },
+    {
+      breakpoint: 480,
+      settings: {
+        slidesToShow: 1,
+        slidesToScroll: 1
+      }
+    }
+  ]
+});
+
+$(".nav-link").click(function(){
+    $('.review_wrap_slider').slick('refresh')
+    $('.review_wrap_slider').resize()
+})
+
+
+
+
+
+
+
+
+
+
+
+
+
+$( function() {
+    var dateFormat = "mm/dd/yy",
+      from = $( "#from" )
+        .datepicker({
+          defaultDate: "+1w",
+          changeMonth: true,
+          numberOfMonths: 3
+        })
+        .on( "change", function() {
+          to.datepicker( "option", "minDate", getDate( this ) );
+        }),
+      to = $( "#to" ).datepicker({
+        defaultDate: "+1w",
+        changeMonth: true,
+        numberOfMonths: 3
+      })
+      .on( "change", function() {
+        from.datepicker( "option", "maxDate", getDate( this ) );
+      });
+
+    function getDate( element ) {
+      var date;
+      try {
+        date = $.datepicker.parseDate( dateFormat, element.value );
+      } catch( error ) {
+        date = null;
+      }
+
+      return date;
+    }
+  } );
+
+
+  // data table
+  $('#myTable').DataTable( {
+    searching: false,
+    paging: false,
+    info:false,
+} );
+
+// overlay for body on menu toggle
+
+  $('.menu_toggle').on('click',  function () {
+    $('body,html').toggleClass('sidebar_show')
+  });
+
+
+
+
+
+  $( function() {
+    var handle = $( "#custom-handle" );
+    let popup = $(".custom-value")
+     $( "#slider-range-min" ).slider({
+      range: "min",
+      value: 13,
+      min: 0,
+      max: 100,
+      create: function() {
+        handle.text( $( this ).slider( "value" ) );
+        popup.text($(this).slider("value"))
+      },
+      slide: function( event, ui ) {
+        $( "#amount" ).val( "$" + ui.value );
+        handle.text( ui.value );
+        popup.text(ui.value);
+      }
+    });
+  } );
+
+
+  $('#table_id').DataTable();
+
+
+ $(".plan_vbtn").on("click",function(){
+    $(".plan_details_inner").removeClass("active");
+    $(this).parents(".plan_details_inner").addClass("active");
+ });
+
+$(".list_grid_wrapper li button").click(function(){
+  $(".listgrid_cnt").removeClass("active");
+  $("#" + $(this).data("target")).addClass("active");
+  $(".list_grid_wrapper li").removeClass("active");
+  $(this).parent("li").addClass("active");
+});
+$(".clickd_tgl_searches").on("click", function(e) {
+  if($(this).next(".clickd_tgl_searches_open").hasClass("active")){
+    $(this).next(".clickd_tgl_searches_open").removeClass("active");
+  }else{
+    $(this).next(".clickd_tgl_searches_open").addClass("active");
+  }
+    e.stopPropagation();
+
+});
+
+$("body").on("click", function(e) {
+
+    if (!$(e.target).is(".clickd_tgl_searches_open") && $(".clickd_tgl_searches_open").has(e.target).length === 0) {
+      $(".clickd_tgl_searches_open").removeClass("active");
+    }
+});
+
+
+
+$('.not_searches_slider_ptt').slick({
+  dots: false,
+  arrows: true,
+  infinite: true,
+  slidesToShow: 1,
+  slidesToScroll: 1,
+  autoplay: false,
+  autoplaySpeed: 3000,
+  centerMode: false,
+  adaptiveHeight: true,
+  centerPadding: '0px',
+  responsive: [
+    {
+      breakpoint: 767,
+      settings: {
+        slidesToShow: 1,
+        slidesToScroll: 1
+      }
+    },
+    {
+      breakpoint: 480,
+      settings: {
+        slidesToShow: 1,
+        slidesToScroll: 1
+      }
+    }
+  ]
+});
+
+$('.modal').on('shown.bs.modal', function (e) {
+  $('.not_searches_slider_ptt').slick('setPosition');
+})
+
+
+function height_calc(){
+    if ($('.left-panel-main').length) {
+
+        var header_height = document.querySelector(".top-logo1").clientHeight,
+        footer_height = document.querySelector(".float_menu").clientHeight;
+        var total_value = header_height + footer_height;
+        // $(".left-menu").css("height", 'calc(98vh - ' + total_value + 'px)');
+      }
+
+  }
+  height_calc();
+
+  $(window).on('load', function(event) {
+      height_calc();
+  });
+  $(window).resize(function(event) {
+      height_calc();
+  });
+
+// document end
+
+})
+
+

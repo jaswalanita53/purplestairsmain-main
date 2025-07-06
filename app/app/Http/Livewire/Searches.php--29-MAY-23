@@ -1,0 +1,100 @@
+<?php
+
+namespace App\Http\Livewire;
+
+use App\Models\Search;
+use App\Models\User;
+use Illuminate\Support\Facades\Auth;
+use Livewire\Component;
+
+class Searches extends Component
+{
+    public $selectedIndustries,
+    $selectedInterests,
+    $selectedLanguages;
+
+    protected $listeners = ['updateSeraches' => '$refresh'];
+
+    public function render()
+    {   
+        \DB::enableQueryLog();
+        $saved_searches = Search::where('company_id',Auth::user()->company->id)->get();
+        $queries = \DB::getQueryLog();
+
+        $side_searches = [];
+        // echo "<pre>";print_r($saved_searches->toArray());echo "</pre>";
+        foreach ($saved_searches as $key => $search) {
+            //get saved search
+            $search_fields = json_decode($search->search_fields,true);
+
+            //assign respective search values from search_fields array
+            $this->selectedInterests = $search_fields['selectedInterests'];
+            $this->selectedIndustries = $search_fields['selectedIndustries'];
+            $this->selectedLanguages = $search_fields['selectedLanguages'];
+            $past_search_match_users = json_decode($search->synced_users, true);
+
+            $candidates2 = User::with(['industries','interests','educations','employments','softSkills','hardSkills','languages','references','personal','companies'])
+            ->where('user_type','candidate')
+            ->when($this->selectedInterests, function($query) {
+                return $query->whereHas('interests', function($query) {
+                    return $query->where('interest_id', $this->selectedInterests);
+                });
+            })
+            ->when($this->selectedIndustries, function($query) {
+                return $query->whereHas('industries', function($query) {
+                    return $query->where('industry_id', $this->selectedIndustries);
+                });
+            })
+            ->when($this->selectedLanguages, function($query) {
+                return $query->whereHas('languages', function($query) {
+                    return $query->where('language_id', $this->selectedLanguages);
+                });
+            });
+            if(!empty($past_search_match_users)){
+            $candidates2=$candidates2->whereNotIn('id',$past_search_match_users);
+        }
+
+            $candidates = User::with(['industries','interests','educations','employments','softSkills','hardSkills','languages','references','personal','companies'])
+            ->where('user_type','candidate')
+            ->when($this->selectedInterests, function($query) {
+                return $query->whereHas('interests', function($query) {
+                    return $query->where('interest_id', $this->selectedInterests);
+                });
+            })
+            ->when($this->selectedIndustries, function($query) {
+                return $query->whereHas('industries', function($query) {
+                    return $query->where('industry_id', $this->selectedIndustries);
+                });
+            })
+            ->when($this->selectedLanguages, function($query) {
+                return $query->whereHas('languages', function($query) {
+                    return $query->where('language_id', $this->selectedLanguages);
+                });
+            });
+
+            // var_dump($search->old_match_count);
+            $side_searches[$search->id]['name'] = $search->name;
+            $side_searches[$search->id]['slug'] = $search->slug;
+            $side_searches[$search->id]['old_match_count'] = $search->old_match_count;
+
+            // get new count after de-select from + sign for manual add/remove
+            $search_count = \DB::table('search_user')->where(['search_id' => $search->id])->count();
+            $side_searches[$search->id]['match_count'] = $search_count;
+            
+            /*if($search->old_match_count != $search_count) {
+                $side_searches[$search->id]['old_match_count'] = $search_count;
+            }*/
+            $past_search_match_users = $search->users->pluck('id')->toArray();
+            $side_searches[$search->id]['past_search_match_users'] = $past_search_match_users;
+            //$side_searches[$search->id]['new_match_count'] = $candidates->count() - $search->old_match_count;
+            $side_searches[$search->id]['new_match_count'] = $candidates2->count();
+        }
+        return view('livewire.searches',compact('side_searches'));
+    }
+
+    public function update_search()
+    {
+        $side_searches = [];
+        return view('livewire.searches',compact('side_searches'));
+    }
+}

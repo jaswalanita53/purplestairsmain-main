@@ -1,0 +1,47 @@
+# Laravel specific
+/vendor/
+/node_modules/
+public/storage
+storage/*.key
+.env
+.env.*.backup
+Homestead.yaml
+Homestead.json
+
+# Laravel caches and logs
+/storage/app/public
+/storage/framework/cache
+/storage/framework/sessions
+/storage/framework/views
+/storage/logs
+
+# IDEs and editors
+.idea/
+*.sublime-project
+*.sublime-workspace
+.vscode/
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Composer and NPM files
+composer.lock
+npm-debug.log
+yarn-error.log
+pnpm-lock.yaml
+
+# PHPUnit
+.phpunit.result.cache
+
+# Laravel Mix
+/public/hot
+/public/mix-manifest.json
+/public/css/
+/public/js/
+
+# Laravel Telescope
+storage/telescope
+
+# Ignoring SQLite databases
+database/*.sqlite

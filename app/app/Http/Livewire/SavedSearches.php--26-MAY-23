@@ -1,0 +1,79 @@
+<?php
+
+namespace App\Http\Livewire;
+
+use App\Models\Search;
+use App\Models\User;
+use Illuminate\Support\Facades\Auth;
+use Livewire\Component;
+
+class SavedSearches extends Component
+{
+    //search entities
+    public
+        $all_industries,
+        $selectedIndustries,
+        $all_interests,
+        $selectedInterests,
+
+        //skills
+        $all_languages,
+        $selectedLanguages,
+        $all_soft_skills,
+        $selectedSoftSkills,
+        $all_hard_skills,
+        $selectedHardSkills,
+        $hard_skills,
+        $hard_skills_status,
+        $soft_skills,
+        $soft_skills_status;
+
+
+    public function render()
+    {
+
+        $saved_searches = Search::where('company_id',Auth::user()->company->id)->get();
+
+        $savedSearches = [];
+
+        //will loop the searches and get data
+        foreach ($saved_searches as $key => $search) {
+
+            $search_fields = json_decode($search->search_fields,true);
+            $past_search_match_users = $search->users->pluck('id')->toArray();
+            //assign respective search values from search_fields array
+            $this->selectedInterests = $search_fields['selectedInterests'];
+            $this->selectedIndustries = $search_fields['selectedIndustries'];
+            $this->selectedLanguages = $search_fields['selectedLanguages'];
+
+            $candidates = User::with(['industries','interests','educations','employments','softSkills','hardSkills','languages','references','personal','companies'])
+            ->where('user_type','candidate')
+            ->when($this->selectedInterests, function($query) {
+                return $query->whereHas('interests', function($query) {
+                    return $query->where('interest_id', $this->selectedInterests);
+                });
+            })
+            ->when($this->selectedIndustries, function($query) {
+                return $query->whereHas('industries', function($query) {
+                    return $query->where('industry_id', $this->selectedIndustries);
+                });
+            })
+            ->when($this->selectedLanguages, function($query) {
+                return $query->whereHas('languages', function($query) {
+                    return $query->where('language_id', $this->selectedLanguages);
+                });
+            })
+            ->whereNotIn('id',$past_search_match_users);
+
+            $savedSearches[$key]['search'] = $search;
+            $savedSearches[$key]['candidates_new_count'] = $candidates->count();
+            $savedSearches[$key]['candidates_profile_image_path'] = $candidates->pluck('profile_photo_path')->toArray();
+        }
+
+        return view('livewire.saved-searches',compact('savedSearches'));
+    }
+
+    public function deleteSearch($id){
+        Search::find($id)->delete();
+    }
+}
